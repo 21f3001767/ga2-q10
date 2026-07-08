@@ -32,6 +32,8 @@ buckets = defaultdict(deque)
 @app.middleware("http")
 async def rate_limiter(request: Request, call_next):
     client_id = request.headers.get("X-Client-Id", "anonymous")
+    if client_id is None:
+        return await call_next(request)
 
     now = time.time()
     q = buckets[client_id]
