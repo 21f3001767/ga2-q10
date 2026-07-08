@@ -19,10 +19,7 @@ app = FastAPI()
 # Replace/add if your exam page uses another origin.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "https://app-v68iek.example.com",
-        "https://exam.sanand.workers.dev"
-    ],
+    allow_origins="https://.*",
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
