@@ -26,22 +26,11 @@ app.add_middleware(
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["X-Request-ID"]
 )
 
 # client_id -> timestamps
 buckets = defaultdict(deque)
-
-
-@app.middleware("http")
-async def request_context(request: Request, call_next):
-    request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
-    request.state.request_id = request_id
-
-    response = await call_next(request)
-
-    response.headers["X-Request-ID"] = request_id
-    return response
-
 
 @app.middleware("http")
 async def rate_limiter(request: Request, call_next):
@@ -62,6 +51,17 @@ async def rate_limiter(request: Request, call_next):
     q.append(now)
 
     return await call_next(request)
+
+
+@app.middleware("http")
+async def request_context(request: Request, call_next):
+    request_id = request.headers.get("X-Request-ID") or str(uuid.uuid4())
+    request.state.request_id = request_id
+
+    response = await call_next(request)
+
+    response.headers["X-Request-ID"] = request_id
+    return response
 
 
 @app.get("/ping")
